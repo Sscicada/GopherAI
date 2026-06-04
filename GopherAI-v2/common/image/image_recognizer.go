@@ -46,6 +46,7 @@ func NewImageRecognizer(modelPath, labelPath string, inputH, inputW int) (*Image
 
 	// 初始化 ONNX 环境（全局一次）
 	initOnce.Do(func() {
+		configureSharedLibraryPath()
 		initErr = ort.InitializeEnvironment()
 	})
 	if initErr != nil {
@@ -100,6 +101,25 @@ func NewImageRecognizer(modelPath, labelPath string, inputH, inputW int) (*Image
 		inputTensor:  inTensor,
 		outputTensor: outTensor,
 	}, nil
+}
+
+func configureSharedLibraryPath() {
+	candidates := []string{}
+	if envPath := os.Getenv("ONNXRUNTIME_DLL_PATH"); envPath != "" {
+		candidates = append(candidates, envPath)
+	}
+	candidates = append(candidates, filepath.Join("models", "onnxruntime", "onnxruntime.dll"))
+
+	for _, candidate := range candidates {
+		if _, err := os.Stat(candidate); err == nil {
+			if abs, err := filepath.Abs(candidate); err == nil {
+				ort.SetSharedLibraryPath(abs)
+			} else {
+				ort.SetSharedLibraryPath(candidate)
+			}
+			return
+		}
+	}
 }
 
 func (r *ImageRecognizer) Close() {

@@ -1,0 +1,23 @@
+# Build outputs
+*.exe
+*.exe~
+dist/
+
+# Dependencies and caches
+node_modules/
+.npm-cache/
+
+# Local runtime data
+uploads/
+models/
+docs/
+
+# Environment and local config
+.env
+.env.*
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

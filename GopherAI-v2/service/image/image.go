@@ -5,13 +5,14 @@ import (
 	"io"
 	"log"
 	"mime/multipart"
+	"os"
 )
 
 
 func RecognizeImage(file *multipart.FileHeader) (string, error) {
 
-	modelPath := "/root/models/mobilenetv2/mobilenetv2-7.onnx"
-	labelPath := "/root/imagenet_classes.txt"
+	modelPath := getEnvOrDefault("IMAGE_MODEL_PATH", "models/mobilenetv2/mobilenetv2-7.onnx")
+	labelPath := getEnvOrDefault("IMAGE_LABEL_PATH", "models/imagenet_classes.txt")
 	inputH, inputW := 224, 224
 
 
@@ -37,4 +38,11 @@ func RecognizeImage(file *multipart.FileHeader) (string, error) {
 
 
 	return recognizer.PredictFromBuffer(buf)
+}
+
+func getEnvOrDefault(key, fallback string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return fallback
 }
