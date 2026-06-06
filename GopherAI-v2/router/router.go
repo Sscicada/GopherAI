@@ -2,6 +2,7 @@ package router
 
 import (
 	"GopherAI/middleware/jwt"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,10 +10,17 @@ import (
 func InitRouter() *gin.Engine {
 
 	r := gin.Default()
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"status": "ok",
+			"app": "GopherAI",
+		})
+	})
 	enterRouter := r.Group("/api/v1")
 	{
 		RegisterUserRouter(enterRouter.Group("/user"))
 	}
+
 	//后续登录的接口需要jwt鉴权
 	{
 		AIGroup := enterRouter.Group("/AI")
