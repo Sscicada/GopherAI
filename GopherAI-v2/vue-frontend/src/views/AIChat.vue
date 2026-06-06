@@ -55,6 +55,14 @@
             <span v-if="message.meta && message.meta.status === 'streaming'" class="streaming-indicator"> ··</span>
           </div>
           <div class="message-content" v-html="renderMarkdown(message.content)"></div>
+          <div
+            v-if="message.role === 'assistant' && message.meta?.status !== 'streaming'"
+            class="message-actions"
+          >
+          <button class="copy-btn" @click="copyMessage(message.content)">
+            复制
+          </button>
+        </div>
         </div>
       </div>
 
@@ -112,6 +120,16 @@ export default {
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
         .replace(/`(.*?)`/g, '<code>$1</code>')
         .replace(/\n/g, '<br>')
+    }
+
+    const copyMessage = async (text) => {
+      try{
+        await navigator.clipboard.writeText(text || '')
+        ElMessage.success('已复制')
+      } catch (error) {
+        console.log('Copy message error:', error)
+        ElMessage.error('复制失败')
+      }
     }
 
     const playTTS = async (text) => {
@@ -574,6 +592,7 @@ export default {
       tempSession,
       currentMessages,
       inputMessage,
+      copyMessage,
       loading,
       messagesRef,
       messageInput,
@@ -906,6 +925,27 @@ export default {
 
 .message-header b {
   font-weight: 600;
+}
+
+.message-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.copy-btn {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: white;
+  background: #409eff;
+  transition: background 0.2s ease;
+}
+
+.copy-btn:hover {
+  background: #337ecc;
 }
 
 .tts-btn {
